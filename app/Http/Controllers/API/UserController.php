@@ -4,27 +4,21 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\{LoginRequest, RegisterRequest};
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Laravel\Fortify\Rules\Password;
+use Illuminate\Support\Facades\{Auth, Hash, Validator};
 
 class UserController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         $detail_error = null;
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'email|required',
-                'password' => 'required'
-            ]);
+            $validated = $request->validated();
 
-            if ($validator->fails()) {
-                $detail_error = $validator->errors();
+            if (count($request->all()) !== count($validated)) {
                 throw new Exception('Invalid Credentials', 400);
             }
 
@@ -57,18 +51,13 @@ class UserController extends Controller
         }
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         $detail_error = null;
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required', 'string', 'confirmed', new Password],
-            ]);
+            $validated = $request->validated();
 
-            if ($validator->fails()) {
-                $detail_error = $validator->errors();
+            if (count($request->all()) !== $validated->count()) {
                 throw new Exception('Bad Request', 400);
             }
 

@@ -3,9 +3,7 @@
 namespace App\Exceptions;
 
 use App\Helpers\ResponseFormatter;
-use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -47,7 +45,7 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
-            if ($request->is('api/*')) {
+            if ($request->is('api/*') && $e) {
                 return ResponseFormatter::error(
                     'Unauthorized',
                     401
