@@ -23,18 +23,20 @@ class ResponseFormatter
 
         self::$response['meta']['code'] = $code;
         self::$response['result'] = $data;
-        return self::$response;
+        return response(self::$response, $code);
     }
 
-    public static function error($message = null, $code = 500)
+    public static function error($message = null, $code = null, $result = null)
     {
         if (!is_null($message)) {
             self::$response['meta']['message'] = $message;
         }
 
-        self::$response['meta']['status'] = false;
+        $code = $code > 0 ? $code : 500;
+
+        self::$response['meta']['success'] = false;
         self::$response['meta']['code'] = $code;
-        self::$response['result'] = null;
-        return self::$response;
+        self::$response['result'] = $result ?? false;
+        return response(self::$response, $code);
     }
 }

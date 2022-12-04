@@ -5,44 +5,110 @@ namespace App\Http\Controllers\API;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Laravel\Fortify\Rules\Password;
 
 class UserController extends Controller
 {
     public function login(Request $request)
     {
+        $detail_error = null;
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'email' => 'email|required',
                 'password' => 'required'
             ]);
 
+            if ($validator->fails()) {
+                $detail_error = $validator->errors();
+                throw new Exception('Invalid Credentials', 400);
+            }
+
             $credentials = request(['email', 'password']);
             if (!Auth::attempt($credentials)) {
-                return ResponseFormatter::error('Unauthorized: Authentication Failed', 401);
+                throw new Exception('Unauthorized', 401);
             }
 
             $query_user = User::where('email', $request->email);
-            if (!Hash::check($request->password, $query_user->value('password'))) {
-                throw new \Exception('Invalid Credentials');
+            if (!$query_user->exists()) {
+                throw new Exception('Not Found', 404);
+            } 
+            else if (!Hash::check($request->password, $query_user->value('password'))) {
+                throw new Exception('Invalid Credentials', 400);
             }
 
             $user = $query_user->first();
-            $token_result = $user->createToken('authToken')->plainTextToken;
+            $token_result = $user->createToken(env('TOKEN_SECRET'))->plainTextToken;
             return ResponseFormatter::success([
                 'access_token' => $token_result,
                 'token_type' => 'Bearer',
                 'user' => $user
-            ], 'Authenticated: Login Success');
-        } catch (\Throwable $th) {
+            ], 'Authenticated');
+        } catch (Exception $e) {
             return ResponseFormatter::error(
-                // [
-                //     'message' => 'Something went wrong',
-                //     'error' => $th
-                // ], 
-                $th ?? 'Authentication Failed');
+                $e->getMessage() ?? 'Authentication Failed',
+                $e->getCode(),
+                $detail_error
+            );
         }
+    }
+
+    public function register(Request $request)
+    {
+        $detail_error = null;
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'confirmed', new Password],
+            ]);
+
+            if ($validator->fails()) {
+                $detail_error = $validator->errors();
+                throw new Exception('Bad Request', 400);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            $token_result = $user->createToken(env('TOKEN_SECRET'))->plainTextToken;
+            return ResponseFormatter::success([
+                'access_token' => $token_result,
+                'token_type' => 'Bearer',
+                'user' => $user
+            ], 'Registration Success');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                $e->getMessage() ?? 'Registration Failed',
+                $e->getCode(),
+                $detail_error
+            );
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $token = $request->user()->currentAccessToken()->delete();
+            
+            return ResponseFormatter::success($token, 'Logout Success');
+        } catch (Exception $e) {
+            return ResponseFormatter::error(
+                $e->getMessage() ?? 'Logout Failed',
+                $e->getCode()
+            );
+        }
+    }
+
+    public function fetch(Request $request)
+    {
+        return ResponseFormatter::success($request->user(), 'Fetch Success');
     }
 }
