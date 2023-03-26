@@ -25,5 +25,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::group(['prefix' => 'company'], function () {
         Route::get('/', [CompanyController::class, 'all']);
+        Route::post('/', [CompanyController::class, 'create']);
+        Route::post('/{id}', [CompanyController::class, 'update']);
     });
+
+    
 });
