@@ -5,7 +5,7 @@ namespace App\Http\Requests\Company;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +14,7 @@ class CreateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -25,7 +25,7 @@ class CreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required'],
+            'name' => ['nullable'],
             'logo' => ['nullable','image','mimes:jpeg,png,jpg,gif,svg','max:2048']
         ];
     }
