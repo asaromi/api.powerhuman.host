@@ -16,7 +16,7 @@ class UserController extends Controller
     {
         $detail_error = null;
         try {
-            $validated = $request->validated();
+            $validated = $request->all();
 
             if (count($request->all()) !== count($validated)) {
                 throw new Exception('Invalid Credentials', 400);
@@ -56,15 +56,16 @@ class UserController extends Controller
         $detail_error = null;
         try {
             $validated = $request->validated();
-
-            if (count($request->all()) !== $validated->count()) {
+            $validated['password_confirmation'] = $validated['password'];
+            
+            if (count($request->all()) !== count($validated)) {
                 throw new Exception('Bad Request', 400);
             }
 
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
             ]);
 
             $token_result = $user->createToken(env('TOKEN_SECRET'))->plainTextToken;

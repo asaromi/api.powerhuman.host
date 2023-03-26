@@ -4,10 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Models\Company;
+use App\Http\Requests\Company\{CreateRequest,UpdateRequest};
+use App\Models\{Company,User};
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class CompanyController extends Controller
 {
@@ -22,7 +22,7 @@ class CompanyController extends Controller
                 $company = Company::withCount('users')->findOrfail($id);
 
                 if (!$company) {
-                    return ResponseFormatter::error('Company not found', 404);
+                    throw new Exception('Company not found', 404);
                 }
 
                 return ResponseFormatter::success($company, 'Company Found');
@@ -40,32 +40,56 @@ class CompanyController extends Controller
         }
     }
 
-    public function create(Request $request)
+    public function create(CreateRequest $request)
     {
-        $detail_error = null;
         try {
-            $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required|email|unique:companies',
-                'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'website' => 'required'
-            ]);
+            $validated = $request->validated();
 
-            if ($validator->fails()) {
-                $detail_error = $validator->errors();
-                throw new Exception('Bad Request', 400);
+            if (isset($request->logo)) {
+                $uploadedFile = $request->file('logo')->store('public/company');
+                $validated['logo'] = str_replace('public/', 'storage/', $uploadedFile);
             }
 
             $company = Company::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'logo' => $request->logo,
-                'website' => $request->website
+                'name' => $validated['name'],
+                'logo' => $validated['logo'] ?? null,
             ]);
+
+            $user = auth()->user();
+            if ($user instanceof User) $user->companies()->attach($company->id);
 
             return ResponseFormatter::success($company, 'Company Created');
         } catch (Exception $e) {
-            return ResponseFormatter::error($e->getMessage(), $e->getCode(), $detail_error);
+            return ResponseFormatter::error($e->getMessage(), $e->getCode());
         }
     }
+
+    public function update(UpdateRequest $request, Company $id)
+    {
+        try {
+            $validated = $request->validated();
+
+            if (isset($validated['logo']) || $validated['logo']) {
+                $uploadedFile = $request->file('logo')->store('public/company');
+                $validated['logo'] = str_replace('public/', 'storage/', $uploadedFile);
+            }
+
+            if (!($id instanceof Company)) {
+                throw new Exception('Company not found', 404);
+            } else {
+                $company = $id;
+            }
+
+            $company->update([
+                'name' => $request->name,
+                'logo' => $request->logo ?? null,
+            ]);
+
+            return ResponseFormatter::success($company, 'Company Updated');
+        } catch (Exception $e) {
+            return ResponseFormatter::error($e->getMessage(), $e->getCode());
+        }
+    }
+
+    
 }
