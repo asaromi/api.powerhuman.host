@@ -17,7 +17,7 @@ class UserCompanyFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => $this->faker->numberBetween(1, 10),
+            'user_id' => $this->faker->numberBetween(1, 2),
             'company_id' => $this->faker->numberBetween(1, 5),
         ];
     }

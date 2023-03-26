@@ -14,9 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(2)->unverified()->create();
-        // \App\Models\Company::factory(5)->create();
-        // \App\Models\UserCompany::factory(5)->create();
+        \App\Models\User::factory(2)->unverified()->create();
+        \App\Models\Company::factory(5)->create();
+        \App\Models\UserCompany::factory(5)->create();
+
+        $this->call([
+            RoleSeeder::class,
+            TeamSeeder::class,
+        ]);
+
         \App\Models\Employee::factory(100)->create();
 
         // \App\Models\User::factory()->create([
