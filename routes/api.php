@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\{CompanyController, UserController};
+use App\Http\Controllers\API\{CompanyController, TeamController, UserController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,11 +23,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/logout', [UserController::class, 'logout']);
     });
 
-    Route::group(['prefix' => 'company'], function () {
-        Route::get('/', [CompanyController::class, 'all']);
-        Route::post('/', [CompanyController::class, 'create']);
-        Route::post('/{id}', [CompanyController::class, 'update']);
+    Route::group(['prefix' => 'companies'], function () {
+        Route::get('/', [CompanyController::class, 'fetchCompanies']);
+        Route::get('/{id}', [CompanyController::class, 'fetchCompany']);
+        Route::post('/', [CompanyController::class, 'createCompany']);
+        Route::post('/{id}', [CompanyController::class, 'updateCompany']);
     });
-
-    
 });

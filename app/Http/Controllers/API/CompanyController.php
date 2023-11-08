@@ -4,43 +4,48 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Company\{CreateRequest,UpdateRequest};
-use App\Models\{Company,User};
+use App\Http\Requests\Company\{CreateRequest, UpdateRequest};
+use App\Models\{Company, User};
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CompanyController extends Controller
 {
-    public function all(Request $request)
+    public function fetchCompanies(Request $request): Response
     {
         try {
-            $id = $request->id;
             $limit = $request->limit ?? 10;
-            $name = $request->name;
+            $name = $request->name ?? false;
 
-            if ($id) {
-                $company = Company::withCount('users')->findOrfail($id);
-
-                if (!$company) {
-                    throw new Exception('Company not found', 404);
-                }
-
-                return ResponseFormatter::success($company, 'Company Found');
-            }
-
-            $company = Company::when(!is_null($name), function ($query) use ($name) {
-                return $query->where('name', 'like', '%' . $name . '%');
-            })
+            $companies = Company::withoutTrashed()
+                ->when($name, fn($query, $name) => $query->where('name', 'like', '%' . $name . '%'))
+                ->whereHas('users', fn($query) => $query->where('name', $name))
                 ->withCount('users')
                 ->paginate($limit);
 
-            return ResponseFormatter::success($company, 'Companies Found');
+            return ResponseFormatter::success($companies, 'Found Companies');
         } catch (\Throwable $th) {
             return ResponseFormatter::error($th->getMessage(), $th->getCode());
         }
     }
 
-    public function create(CreateRequest $request)
+    public function fetchCompany(Company $id): Response
+    {
+        try {
+            if (!($id instanceof Company)) {
+                throw new Exception('Company not found', 404);
+            } else {
+                $company = $id;
+            }
+
+            return ResponseFormatter::success($company, 'Company Found');
+        } catch (Exception $e) {
+            return ResponseFormatter::error($e->getMessage(), $e->getCode());
+        }
+    }
+
+    public function createCompany(CreateRequest $request): \Illuminate\Http\Response|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory
     {
         try {
             $validated = $request->validated();
@@ -64,12 +69,12 @@ class CompanyController extends Controller
         }
     }
 
-    public function update(UpdateRequest $request, Company $id)
+    public function updateCompany(UpdateRequest $request, Company $id)
     {
         try {
             $validated = $request->validated();
 
-            if (isset($validated['logo']) || $validated['logo']) {
+            if (array_key_exists('logo', $validated)) {
                 $uploadedFile = $request->file('logo')->store('public/company');
                 $validated['logo'] = str_replace('public/', 'storage/', $uploadedFile);
             }
@@ -91,5 +96,5 @@ class CompanyController extends Controller
         }
     }
 
-    
+
 }
