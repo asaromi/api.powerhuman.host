@@ -1,0 +1,40 @@
+### Auth - Register
+POST https://api.powerhuman.test/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Asa Romi",
+    "password": "password",
+    "password_confirmation": "password",
+    "email": "asami.mayuri1@gmail.com"
+}
+
+### Auth - Login
+POST https://api.powerhuman.test/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "asami.mayuri1@gmail.com",
+    "password": "password"
+}
+
+### Auth - Logout
+POST https://api.powerhuman.test/api/auth/logout
+
+### Auth - Fetch Authenticated User
+GET https://api.powerhuman.test/api/auth
+Authorization: Bearer 1|3o9mEQXv90nmZtYaSLg0aYR72UAGyeJv42pIszoq859e591b
+
+### Company - Get All
+GET https://api.powerhuman.test/api/companies
+Authorization: Bearer 1|3o9mEQXv90nmZtYaSLg0aYR72UAGyeJv42pIszoq859e591b
+
+### Company - create
+POST https://api.powerhuman.test/api/companies
+Authorization: Bearer 1|3o9mEQXv90nmZtYaSLg0aYR72UAGyeJv42pIszoq859e591b
+Content-Type: application/json
+
+{
+    "name": "PT. Power Human Indonesia",
+    "logo": "https://via.placeholder.com/150"
+}
