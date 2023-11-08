@@ -14,7 +14,6 @@ class UserController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        $detail_error = null;
         try {
             $validated = $request->all();
 
@@ -30,7 +29,7 @@ class UserController extends Controller
             $query_user = User::where('email', $request->email);
             if (!$query_user->exists()) {
                 throw new Exception('Not Found', 404);
-            } 
+            }
             else if (!Hash::check($request->password, $query_user->value('password'))) {
                 throw new Exception('Invalid Credentials', 400);
             }
@@ -45,19 +44,17 @@ class UserController extends Controller
         } catch (Exception $e) {
             return ResponseFormatter::error(
                 $e->getMessage() ?? 'Authentication Failed',
-                $e->getCode(),
-                $detail_error
+                $e->getCode()
             );
         }
     }
 
     public function register(RegisterRequest $request)
     {
-        $detail_error = null;
         try {
             $validated = $request->validated();
             $validated['password_confirmation'] = $validated['password'];
-            
+
             if (count($request->all()) !== count($validated)) {
                 throw new Exception('Bad Request', 400);
             }
@@ -77,8 +74,7 @@ class UserController extends Controller
         } catch (Exception $e) {
             return ResponseFormatter::error(
                 $e->getMessage() ?? 'Registration Failed',
-                $e->getCode(),
-                $detail_error
+                $e->getCode()
             );
         }
     }
@@ -87,7 +83,7 @@ class UserController extends Controller
     {
         try {
             $token = $request->user()->currentAccessToken()->delete();
-            
+
             return ResponseFormatter::success($token, 'Logout Success');
         } catch (Exception $e) {
             return ResponseFormatter::error(
