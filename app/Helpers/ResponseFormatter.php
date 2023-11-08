@@ -5,7 +5,7 @@ namespace App\Helpers;
 class ResponseFormatter
 {
     /**
-     * 
+     *
      */
     protected static $response = [
         'meta' => [
@@ -32,7 +32,7 @@ class ResponseFormatter
             self::$response['meta']['message'] = $message;
         }
 
-        $code = $code > 0 ? $code : 500;
+        $code = $code ?? 500;
 
         self::$response['meta']['success'] = false;
         self::$response['meta']['code'] = $code;
