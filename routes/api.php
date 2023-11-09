@@ -28,4 +28,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/', [CompanyController::class, 'createCompany']);
         Route::post('/{id}', [CompanyController::class, 'updateCompany']);
     });
+
+    Route::group(['prefix' => 'teams'], function () {
+        Route::get('/', [TeamController::class, 'fetchTeams']);
+        Route::post('/', [TeamController::class, 'createTeam']);
+        Route::post('/{id}', [TeamController::class, 'updateTeam']);
+        Route::delete('/{id}', [TeamController::class, 'deleteTeam']);
+    });
 });
