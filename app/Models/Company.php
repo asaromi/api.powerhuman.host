@@ -32,7 +32,7 @@ class Company extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function team()
+    public function teams()
     {
         return $this->hasMany(Team::class, 'team_id');
     }
