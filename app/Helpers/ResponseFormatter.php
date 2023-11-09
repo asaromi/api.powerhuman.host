@@ -21,22 +21,20 @@ class ResponseFormatter
             self::$response['meta']['message'] = $message;
         }
 
-        self::$response['meta']['code'] = $code;
+        self::$response['meta']['code'] = $code ?? 200;
         self::$response['result'] = $data;
         return response(self::$response, $code);
     }
 
-    public static function error($message = null, $code = null, $result = null)
+    public static function error($message = null, $code = 500, $result = null)
     {
         if (!is_null($message)) {
             self::$response['meta']['message'] = $message;
         }
 
-        $code = $code ?? 500;
-
         self::$response['meta']['success'] = false;
-        self::$response['meta']['code'] = $code;
-        self::$response['result'] = $result ?? false;
+        self::$response['meta']['code'] = $code ?? 500;
+        self::$response['result'] = $result;
         return response(self::$response, $code);
     }
 }
