@@ -7,45 +7,49 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Company\{CreateRequest, UpdateRequest};
 use App\Models\{Company, User};
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Http\{Request, Response};
 
 class CompanyController extends Controller
 {
-    public function fetchCompanies(Request $request): Response
+    /**
+     * Display a listing of the Companies.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
+    public function fetchCompanies(Request $request)
     {
         try {
             $limit = $request->limit ?? 10;
-            $name = $request->name ?? false;
+            $name = $request->name;
+            $user_id = $request->user_id;
 
             $companies = Company::withoutTrashed()
-                ->when($name, fn($query, $name) => $query->where('name', 'like', '%' . $name . '%'))
-                ->whereHas('users', fn($query) => $query->where('name', $name))
-                ->withCount('users')
+                ->when($name ?? false,
+                    fn($query, $name) => $query->where('name', 'like', '%' . $name . '%')
+                        ->orWhereHas('users', fn($query) => $query->where('name', 'like', '%' . $name . '%'))
+                )
+                ->when($user_id ?? false,
+                    fn($query, $user_id) => $query->whereHas('users',
+                        fn($query) => $query->where('user_id', (int) $user_id)
+                    )
+                )
+                ->with('users:id,name,email,profile_photo_path')
                 ->paginate($limit);
 
             return ResponseFormatter::success($companies, 'Found Companies');
-        } catch (\Throwable $th) {
-            return ResponseFormatter::error($th->getMessage(), $th->getCode());
-        }
-    }
-
-    public function fetchCompany(Company $id): Response
-    {
-        try {
-            if (!($id instanceof Company)) {
-                throw new Exception('Company not found', 404);
-            } else {
-                $company = $id;
-            }
-
-            return ResponseFormatter::success($company, 'Company Found');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ResponseFormatter::error($e->getMessage(), $e->getCode());
         }
     }
 
-    public function createCompany(CreateRequest $request): \Illuminate\Http\Response|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param CreateRequest $request
+     * @return Response
+     */
+    public function createCompany(CreateRequest $request)
     {
         try {
             $validated = $request->validated();
@@ -69,32 +73,34 @@ class CompanyController extends Controller
         }
     }
 
+    /**
+     * Update the specified team in storage.
+     *
+     * @param  UpdateRequest  $request
+     * @param  Company  $id
+     * @return Response
+     */
     public function updateCompany(UpdateRequest $request, Company $id)
     {
         try {
-            $validated = $request->validated();
+            if (!($id instanceof Company)) throw new Exception('Company not found', 404);
 
-            if (array_key_exists('logo', $validated)) {
+            $validated = $request->validated();
+            if ($request->hasFile('logo')) {
                 $uploadedFile = $request->file('logo')->store('public/company');
                 $validated['logo'] = str_replace('public/', 'storage/', $uploadedFile);
             }
 
-            if (!($id instanceof Company)) {
-                throw new Exception('Company not found', 404);
-            } else {
-                $company = $id;
-            }
-
-            $company->update([
+            $id->update([
                 'name' => $request->name,
                 'logo' => $request->logo ?? null,
             ]);
 
-            return ResponseFormatter::success($company, 'Company Updated');
+            $id->load('users');
+
+            return ResponseFormatter::success($id, 'Company Updated');
         } catch (Exception $e) {
             return ResponseFormatter::error($e->getMessage(), $e->getCode());
         }
     }
-
-
 }
