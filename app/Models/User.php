@@ -58,7 +58,7 @@ class User extends Authenticatable
     /**
      * Get all of the company for the User
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function companies()
     {

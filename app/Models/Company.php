@@ -18,9 +18,9 @@ class Company extends Model
     protected $hidden = ['deleted_at', 'pivot'];
 
     /**
-     * Get all of the team for the Company
+     * Get all of the users for the Company
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users()
     {
