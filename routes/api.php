@@ -46,7 +46,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::group(['prefix' => 'responsibilities'], function () {
         Route::get('/', [ResponsibilityController::class, 'fetchResponsibilities']);
         Route::post('/', [ResponsibilityController::class, 'createResponsibility']);
-        Route::post('/{id}', [ResponsibilityController::class, 'updateResponsibility']);
         Route::delete('/{id}', [ResponsibilityController::class, 'deleteResponsibility']);
     });
 });

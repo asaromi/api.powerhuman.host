@@ -68,27 +68,6 @@ class ResponsibilityController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param UpdateRequest $request
-     * @param Responsibility $id
-     * @return Response
-     */
-    public function updateResponsibility(UpdateRequest $request, Responsibility $id)
-    {
-        try {
-            $validated = $request->validated();
-            $id->update($validated);
-
-            $id->load('role');
-
-            return ResponseFormatter::success($id, 'Responsibility Updated');
-        } catch (\Exception $e) {
-            return ResponseFormatter::error($e->getMessage(), $e->getCode());
-        }
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
      * @param Responsibility $id
