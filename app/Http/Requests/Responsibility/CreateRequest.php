@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Responsibility;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
 
-class CreateRequest extends FormRequest
+class CreateRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
