@@ -37,7 +37,7 @@ class CompanyController extends Controller
                 ->with('users:id,name,email,profile_photo_path')
                 ->paginate($limit);
 
-            return ResponseFormatter::success($companies, 'Found Companies');
+            return ResponseFormatter::success($companies);
         } catch (\Exception $e) {
             return ResponseFormatter::error($e->getMessage(), $e->getCode());
         }
@@ -83,8 +83,6 @@ class CompanyController extends Controller
     public function updateCompany(UpdateRequest $request, Company $id)
     {
         try {
-            if (!($id instanceof Company)) throw new Exception('Company not found', 404);
-
             $validated = $request->validated();
             if ($request->hasFile('logo')) {
                 $uploadedFile = $request->file('logo')->store('public/company');
