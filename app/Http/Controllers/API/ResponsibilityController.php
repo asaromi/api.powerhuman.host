@@ -52,7 +52,7 @@ class ResponsibilityController extends Controller
     public function createResponsibility(CreateRequest $request)
     {
         try {
-            $is_exists_role = Role::withoutTrashed()->where('id', (int) $request->company_id)->exists();
+            $is_exists_role = Role::withoutTrashed()->where('id', (int) $request->role_id)->exists();
             if (!$is_exists_role) throw new \Exception('Role not found', 404);
 
             $validated = $request->validated();
