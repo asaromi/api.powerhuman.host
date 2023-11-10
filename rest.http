@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
     "name": "Asa Romi",
-    "password": "password",
+    "password": "xxxxxxxx",
     "password_confirmation": "password",
     "email": "asami.mayuri1@gmail.com"
 }
@@ -14,7 +14,7 @@ POST https://api.powerhuman.test/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "asami.mayuri1@gmail.com",
+    "email": "irwan24@example.org",
     "password": "password"
 }
 
@@ -23,18 +23,105 @@ POST https://api.powerhuman.test/api/auth/logout
 
 ### Auth - Fetch Authenticated User
 GET https://api.powerhuman.test/api/auth
-Authorization: Bearer 1|3o9mEQXv90nmZtYaSLg0aYR72UAGyeJv42pIszoq859e591b
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
 
 ### Company - Get All
 GET https://api.powerhuman.test/api/companies
-Authorization: Bearer 1|3o9mEQXv90nmZtYaSLg0aYR72UAGyeJv42pIszoq859e591b
+#    ?user_id=1
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
 
 ### Company - create
 POST https://api.powerhuman.test/api/companies
-Authorization: Bearer 1|3o9mEQXv90nmZtYaSLg0aYR72UAGyeJv42pIszoq859e591b
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
 Content-Type: application/json
 
 {
-    "name": "PT. Power Human Indonesia",
-    "logo": "https://via.placeholder.com/150"
+    "name": "PT. Power Human Indonesia"
 }
+
+### Company - update
+POST https://api.powerhuman.test/api/companies/2
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+Content-Type: application/json
+
+{
+    "name": "PT. Power Human ID"
+}
+
+### Team - Get All
+GET https://api.powerhuman.test/api/teams
+#    ?company_id=2
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+
+### Team - Create
+POST https://api.powerhuman.test/api/teams
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+Content-Type: application/json
+
+{
+    "name": "Data",
+    "company_id": 3
+}
+
+### Team - Update
+POST https://api.powerhuman.test/api/teams/2
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+Content-Type: application/json
+
+{
+    "company_id": 4
+}
+
+### Team - Delete
+DELETE https://api.powerhuman.test/api/teams/5
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+
+### Role - Get All
+GET https://api.powerhuman.test/api/roles
+#    ?company_id=&name=
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+
+### Role - Create [Example body from top: 200, 404, 500]
+POST https://api.powerhuman.test/api/roles
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+Content-Type: application/json
+
+{
+    "name": "Data Engineer",
+    "company_id": 4
+}
+
+### Role - Update
+POST https://api.powerhuman.test/api/roles/4
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+Content-Type: application/json
+
+{
+    "name": "Data Engineer",
+    "company_id": 6
+}
+
+### Role - Delete
+DELETE https://api.powerhuman.test/api/roles/x
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+
+### Responsibility - Get All
+GET https://api.powerhuman.test/api/responsibilities
+#    ?role_id=&name=
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+
+### Responsibility - Create [Example body from top: 200, 404, 500]
+POST https://api.powerhuman.test/api/responsibilities
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+Content-Type: application/json
+
+{
+    "name": "Deliver features to live server",
+    "role_id": 1
+}
+
+### Responsibility - Delete
+DELETE https://api.powerhuman.test/api/responsibilities/1
+Authorization: Bearer 2|tPDww7jH5YoiFg698MOWFhFNRjIX39Gm9wlhz5sse2d3a3ef
+
+
