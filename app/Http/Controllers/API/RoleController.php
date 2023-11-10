@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\Responsibility;
 use App\Http\Requests\Role\{CreateRequest, UpdateRequest};
 use App\Models\Role;
@@ -55,6 +56,9 @@ class RoleController extends Controller
     public function createRole(CreateRequest $request)
     {
         try {
+            $is_exists_company = Company::withoutTrashed()->where('id', (int) $request->company_id)->exists();
+            if (!$is_exists_company) throw new \Exception('Company not found', 404);
+
             $validated = $request->validated();
             $role = Role::create([
                 'name' => $validated['name'],
@@ -79,7 +83,10 @@ class RoleController extends Controller
     public function updateRole(UpdateRequest $request, Role $id)
     {
         try {
-            if (!($id instanceof Role)) throw new \Exception('Role not found', 404);
+            if ($company_id = (int) $request->company_id) {
+                $is_exists_company = Company::withoutTrashed()->where('id', $company_id)->exists();
+                if(!$is_exists_company) throw new \Exception('Company not found', 404);
+            }
 
             $validated = $request->validated();
             $id->update($validated);
@@ -100,6 +107,8 @@ class RoleController extends Controller
      */
     public function deleteRole(Role $id)
     {
+        // using db transaction to make sure that all functionalities are succeed (it will be commit the changes to db)
+        // or rolling back the transaction when has failed functionality
         DB::beginTransaction();
         try {
             $responsibility_ids = $id->responsibilities()->pluck('id')->toArray();

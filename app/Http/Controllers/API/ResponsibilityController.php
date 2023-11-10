@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Responsibility\{CreateRequest, UpdateRequest};
-use App\Models\Responsibility;
+use App\Http\Requests\Responsibility\CreateRequest;
+use App\Models\{Responsibility, Role};
 use Illuminate\Http\{Request, Response};
 
 class ResponsibilityController extends Controller
@@ -52,8 +52,10 @@ class ResponsibilityController extends Controller
     public function createResponsibility(CreateRequest $request)
     {
         try {
-            $validated = $request->validated();
+            $is_exists_role = Role::withoutTrashed()->where('id', (int) $request->company_id)->exists();
+            if (!$is_exists_role) throw new \Exception('Role not found', 404);
 
+            $validated = $request->validated();
             $responsibility = Responsibility::create([
                 'name' => $validated['name'],
                 'role_id' => $validated['role_id']
