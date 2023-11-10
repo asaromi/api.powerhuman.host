@@ -4,8 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Models\Company;
-use App\Models\Responsibility;
+use App\Models\{Company, Employee, Responsibility};
 use App\Http\Requests\Role\{CreateRequest, UpdateRequest};
 use App\Models\Role;
 
@@ -111,8 +110,14 @@ class RoleController extends Controller
         // or rolling back the transaction when has failed functionality
         DB::beginTransaction();
         try {
-            $responsibility_ids = $id->responsibilities()->pluck('id')->toArray();
+            $role = $id->load(['responsibilities:id,role_id', 'employees:id,role_id']);
+
+            $responsibility_ids = $role->responsibilities->pluck('id');
             Responsibility::withoutTrashed()->whereIn('id', $responsibility_ids)->delete();
+
+            $employees_id = $role->employees->pluck('id');
+            Employee::withoutTrashed()->whereIn('id', $employees_id)->delete();
+
             $id->delete();
 
             DB::commit();
