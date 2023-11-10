@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\{CompanyController, RoleController, TeamController, UserController};
+use App\Http\Controllers\API\{CompanyController, ResponsibilityController, RoleController, TeamController, UserController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,5 +41,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/', [RoleController::class, 'createRole']);
         Route::post('/{id}', [RoleController::class, 'updateRole']);
         Route::delete('/{id}', [RoleController::class, 'deleteRole']); // not tested yet
+    });
+
+    Route::group(['prefix' => 'responsibilities'], function () {
+        Route::get('/', [ResponsibilityController::class, 'fetchResponsibilities']);
+        Route::post('/', [ResponsibilityController::class, 'createResponsibility']);
+        Route::post('/{id}', [ResponsibilityController::class, 'updateResponsibility']);
+        Route::delete('/{id}', [ResponsibilityController::class, 'deleteResponsibility']);
     });
 });
