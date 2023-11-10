@@ -40,7 +40,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/', [RoleController::class, 'fetchRoles']);
         Route::post('/', [RoleController::class, 'createRole']);
         Route::post('/{id}', [RoleController::class, 'updateRole']);
-        Route::delete('/{id}', [RoleController::class, 'deleteRole']); // not tested yet
+        Route::delete('/{id}', [RoleController::class, 'deleteRole']);
     });
 
     Route::group(['prefix' => 'responsibilities'], function () {
