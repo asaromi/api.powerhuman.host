@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('role_id');
             $table->unsignedBigInteger('team_id');
-            $table->timestamp('validated_at');
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
