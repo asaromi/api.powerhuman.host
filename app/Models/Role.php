@@ -35,4 +35,14 @@ class Role extends Model
     {
         return $this->hasMany(Responsibility::class, 'role_id');
     }
+
+    /**
+     * Get all of the employees for the Role
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'role_id');
+    }
 }
