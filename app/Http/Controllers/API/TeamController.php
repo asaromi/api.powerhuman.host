@@ -4,8 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\{Employee, User, Team};
 use App\Http\Requests\Team\{CreateRequest, UpdateRequest};
-use App\Models\Team;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\{Request, Response};
 use Exception;
 
@@ -26,8 +27,11 @@ class TeamController extends Controller
 
             $teams = Team::withoutTrashed()
                 ->when($name ?? false,
-                    fn($query, $name) => $query->where('name', 'like', '%' . $name . '%')
-                        ->orWhereHas('company', fn($query) => $query->where('name', 'like', '%' . $name . '%'))
+                    fn($query, $name) => $query
+                        ->where('name', 'like', '%' . $name . '%')
+                        ->orWhereHas('company',
+                            fn($query) => $query->where('name', 'like', '%' . $name . '%')
+                        )
                 )
                 ->when($company_id ?? false, fn($query, $company_id) => $query->where('company_id', (int) $company_id))
                 ->with('company:id,name,logo')
@@ -79,8 +83,6 @@ class TeamController extends Controller
     public function updateTeam(UpdateRequest $request, Team $id)
     {
         try {
-            if (!($id instanceof Team)) throw new Exception('Company not found', 404);
-
             $validated = $request->validated();
             $id->update($validated);
 
@@ -100,14 +102,24 @@ class TeamController extends Controller
      */
     public function deleteTeam(Team $id)
     {
+        // using db transaction to make sure that all functionalities are succeed (it will be commit the changes to db)
+        // or rolling back the transaction when has failed functionality
+        DB::beginTransaction();
         try {
-            if (!($id instanceof Team)) throw new Exception('Team not found', 404);
+            $team = $id->load(['employees:id,team_id', 'users:id,current_team_id']);
 
-            $team = $id->toArray();
+            $employee_ids = $team->employees->pluck('id');
+            Employee::withoutTrashed()->whereIn('id', $employee_ids)->delete();
+
+            $user_ids = $team->users->pluck('id');
+            User::whereIn('id', $user_ids)->update(['current_team_id' => null]);
+
             $id->delete();
 
+            DB::commit();
             return ResponseFormatter::success($team, 'Team Deleted');
         } catch (\Exception $e) {
+            DB::rollBack();
             return ResponseFormatter::error($e->getMessage(), $e->getCode());
         }
     }
