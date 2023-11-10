@@ -16,6 +16,11 @@ class Responsibility extends Model
      */
     protected $fillable = ['name', 'role_id'];
 
+    /**
+     * Get the role that owns the Responsibility
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id');
